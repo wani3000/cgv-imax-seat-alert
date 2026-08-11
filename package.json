@@ -1,0 +1,1 @@
+{"private":true,"scripts":{"start":"node bot.js"},"dependencies":{"puppeteer":"^24.15.0"}}
