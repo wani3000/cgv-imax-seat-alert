@@ -38,8 +38,6 @@ def upcoming_watch_dates(today: date, weekend_count: int = 3,
                          extra_dates: Iterable[date] = ()) -> list[WatchDate]:
     """Return the next weekend plus following weekends and future exceptions."""
     days_until_friday = (4 - today.weekday()) % 7
-    if days_until_friday == 0 and today.weekday() == 4:
-        days_until_friday = 7
     first_friday = today + timedelta(days=days_until_friday)
     result: set[WatchDate] = set()
     for week in range(weekend_count):
@@ -48,24 +46,66 @@ def upcoming_watch_dates(today: date, weekend_count: int = 3,
         result.add(WatchDate((friday + timedelta(days=1)).strftime("%Y%m%d")))
         result.add(WatchDate((friday + timedelta(days=2)).strftime("%Y%m%d")))
     for extra in extra_dates:
-        if extra > today:
+        if extra >= today:
             result.add(WatchDate(extra.strftime("%Y%m%d")))
     return sorted(result)
 
 
-def adjacent_target_pairs(seats: Iterable[str], rows: str = "GHIJ") -> list[str]:
-    """Find adjacent pairs in target rows from normalized seat names."""
+def adjacent_target_pairs(seats: Iterable[str], rows: str = "GHIJ",
+                          all_seats: Iterable[str] | None = None,
+                          center_radius: int = 15) -> list[str]:
+    """Find target-row pairs whose two seats are within the row's center radius.
+
+    ``all_seats`` must describe the auditorium layout.  Using only available
+    seats to infer the center would move the center whenever seats sell.
+    The legacy fallback keeps compatibility for providers that do not yet
+    supply layout seats, but browser monitoring must always provide them.
+    """
     grouped: dict[str, set[int]] = {row: set() for row in rows}
     for seat in seats:
         if len(seat) < 2 or seat[0] not in grouped or not seat[1:].isdigit():
             continue
         grouped[seat[0]].add(int(seat[1:]))
+    layout: dict[str, set[int]] = {row: set() for row in rows}
+    for seat in all_seats or seats:
+        if len(seat) >= 2 and seat[0] in layout and seat[1:].isdigit():
+            layout[seat[0]].add(int(seat[1:]))
     pairs: list[str] = []
     for row, numbers in grouped.items():
+        if not layout[row]:
+            continue
+        center = (min(layout[row]) + max(layout[row])) / 2
         for number in sorted(numbers):
-            if number + 1 in numbers:
+            if (number + 1 in numbers
+                    and abs(number - center) <= center_radius
+                    and abs(number + 1 - center) <= center_radius):
                 pairs.append(f"{row}{number}·{row}{number + 1}")
     return pairs
+
+
+@dataclass(frozen=True)
+class CoverageResult:
+    expected: frozenset[str]
+    checked: frozenset[str]
+
+    @property
+    def complete(self) -> bool:
+        return self.expected == self.checked
+
+    @property
+    def missing(self) -> tuple[str, ...]:
+        return tuple(sorted(self.expected - self.checked))
+
+
+def screening_key(theater_code: str, ymd: str, time: str) -> str:
+    """Build a stable key only from verified URL/page values."""
+    if theater_code not in {"0013", "0199"}:
+        raise ValueError("Unexpected CGV theater code")
+    if len(ymd) != 8 or not ymd.isdigit():
+        raise ValueError("Invalid screening date")
+    if len(time) != 5 or time[2] != ":":
+        raise ValueError("Invalid screening time")
+    return "|".join((theater_code, ymd, time))
 
 
 class SnapshotStore:
