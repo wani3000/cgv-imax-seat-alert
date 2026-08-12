@@ -25,4 +25,6 @@ sed \
 plutil -lint "$AGENT_FILE"
 launchctl bootout "gui/$USER_ID/com.wani3000.cgv-imax-subscription" >/dev/null 2>&1 || true
 launchctl bootstrap "gui/$USER_ID" "$AGENT_FILE"
-launchctl print "gui/$USER_ID/com.wani3000.cgv-imax-subscription" | grep -E 'state =|pid ='
+launchctl print "gui/$USER_ID/com.wani3000.cgv-imax-subscription" | grep -E 'state =|pid =' || true
+ROLE=$(awk -F= '/^TELEGRAM_INSTANCE_ROLE=/{print $2}' "$PROJECT_DIR/.env" | tail -n 1)
+echo "Telegram instance role: ${ROLE:-standby}"

@@ -10,9 +10,16 @@ from monitor_core import (
     adjacent_target_pairs,
     upcoming_watch_dates,
 )
+from subscription_bot import command_receiver_enabled
 
 
 class MonitorCoreTests(unittest.TestCase):
+    def test_only_primary_receives_telegram_commands(self):
+        self.assertTrue(command_receiver_enabled("primary"))
+        self.assertFalse(command_receiver_enabled("standby"))
+        with self.assertRaises(ValueError):
+            command_receiver_enabled("anything-else")
+
     def test_dynamic_dates_include_three_weekends_and_exception(self):
         dates = upcoming_watch_dates(date(2026, 8, 12), extra_dates=[date(2026, 8, 17)])
         self.assertEqual(

@@ -44,7 +44,18 @@ def save_offset(offset: int) -> None:
     OFFSET_FILE.write_text(json.dumps({"offset": offset}), encoding="utf-8")
 
 
+def command_receiver_enabled(role: str | None = None) -> bool:
+    """Only the primary machine may consume Telegram getUpdates."""
+    normalized = (role or os.getenv("TELEGRAM_INSTANCE_ROLE", "standby")).strip().lower()
+    if normalized not in {"primary", "standby"}:
+        raise ValueError("TELEGRAM_INSTANCE_ROLE must be primary or standby")
+    return normalized == "primary"
+
+
 def main() -> None:
+    if not command_receiver_enabled():
+        print("Telegram command receiver disabled: standby machine", flush=True)
+        return
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     if not token:
         raise SystemExit("TELEGRAM_BOT_TOKEN is missing")

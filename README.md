@@ -77,4 +77,4 @@ python3 -m unittest -v test_monitor_core.py
 python3 subscription_bot.py
 ```
 
-다른 PC 인계와 macOS 자동 실행 방법은 `OPERATIONS.md`를 참고한다. Toss 결제 준비와 키체인 설정은 `PAYMENT_AUTOMATION.md`, Telegram 문체와 검증 기준은 `TELEGRAM_STYLE.md`, 감시 조건의 이식 가능한 기준은 `watch-config.example.json`, 에이전트 행동 규칙은 `AGENTS.md`에 정리되어 있다.
+다른 PC 인계와 macOS 자동 실행 방법은 `OPERATIONS.md`, 주 PC·예비 PC 역할과 장애 전환은 `MULTI_PC_FAILOVER.md`를 참고한다. Toss 결제 준비와 키체인 설정은 `PAYMENT_AUTOMATION.md`, Telegram 문체와 검증 기준은 `TELEGRAM_STYLE.md`, 감시 조건은 `watch-config.example.json`, 에이전트 행동 규칙은 `AGENTS.md`에 정리되어 있다.

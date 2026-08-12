@@ -5,7 +5,7 @@ GitHub에는 프로그램과 운영 규칙만 저장한다. Telegram 토큰, 구
 ## 새 PC에서 복구
 
 1. 이 저장소를 clone한다.
-2. `.env.example`을 `.env`로 복사하고 새 PC에서 Telegram 토큰을 입력한다.
+2. `.env.example`을 `.env`로 복사하고 새 PC에서 Telegram 토큰을 입력한다. 새 PC의 `TELEGRAM_INSTANCE_ROLE`은 `standby`로 유지한다.
 3. `./setup_payment_keychain.sh`를 실행해 이 Mac의 로그인 키체인에 Toss 식별 정보를 등록한다. 실제 값은 GitHub로 복사하지 않는다.
 4. 기존 봇 대화에서 구독자들이 `/start`를 다시 보내게 한다. Chat ID는 새 PC의 `data/subscribers.json`에 생성된다.
 5. `python3 -m unittest -v test_monitor_core.py`를 실행한다.
@@ -24,4 +24,4 @@ GitHub에는 프로그램과 운영 규칙만 저장한다. Telegram 토큰, 구
 
 ## 다중 PC 주의사항
 
-GitHub clone만으로 CGV 로그인 세션이나 Codex 예약 작업이 다른 PC에 실시간 승계되지는 않는다. 끊김 없는 장애 조치를 위해서는 두 번째 PC에도 위 복구 절차와 별도의 예약 작업이 미리 준비되어 있어야 한다. 같은 Telegram Bot API의 `getUpdates`를 두 PC에서 동시에 소비하면 명령이 나뉠 수 있으므로 구독 명령 서비스는 한 PC에서만 활성화한다. 좌석 감시는 중복 실행할 수 있지만 Telegram 중복 알림 방지 상태를 공유하지 않으면 같은 결과가 두 번 갈 수 있다.
+GitHub clone만으로 CGV 로그인 세션이나 Codex 예약 작업이 다른 PC에 실시간 승계되지는 않는다. 역할 지정과 안전한 전환 절차는 `MULTI_PC_FAILOVER.md`를 반드시 따른다.

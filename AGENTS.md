@@ -26,4 +26,4 @@ This repository monitors CGV Odyssey IMAX seats for the owner.
 
 ## New-machine recovery
 
-Read `OPERATIONS.md` and `PAYMENT_AUTOMATION.md`, create `.env` locally, run `setup_payment_keychain.sh`, run the tests, install the subscription service, sign in to CGV in the selected browser, and recreate the scheduler from `watch-config.example.json`.
+Read `MULTI_PC_FAILOVER.md`, `OPERATIONS.md`, and `PAYMENT_AUTOMATION.md`. A newly cloned or replacement machine must remain `standby` unless the user explicitly promotes it after the old primary is offline. Then create `.env` locally, run `setup_payment_keychain.sh`, run the tests, install the service, sign in to CGV, and recreate the scheduler from `watch-config.example.json`.
