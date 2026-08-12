@@ -1,6 +1,6 @@
 # Agent handoff rules
 
-This repository monitors CGV Odyssey IMAX seats for the owner.
+This repository monitors CGV Odyssey IMAX remaining-seat counts for the owner.
 
 ## Monitoring policy
 
@@ -8,24 +8,19 @@ This repository monitors CGV Odyssey IMAX seats for the owner.
 - Fridays: screenings starting at 19:00 or later. Saturdays and Sundays: all day.
 - Include future dates in `extra_dates` from `watch-config.json` when present.
 - Theaters: Yongsan I'Park Mall (`0013`) and Cheonho (`0199`).
-- Target: two adjacent standard seats in rows G-J, within 15 seats of the auditorium center.
-- Continue timetable and seat tracking when CGV is logged out. Login is required only after a matching pair is found and reservation steps begin.
+- Read only the remaining/total seat count shown in each timetable screening. Never enter the attendee, seat-map, reservation, or payment flow.
+- Report only screenings whose remaining-seat ratio is at least 50% (inclusive). Example: 312/624 is included and 311/624 is omitted.
+- Tracking does not require CGV login.
 - Notify every Telegram subscriber on every scheduled run, including a friendly explicit no-seat result.
-- Follow `TELEGRAM_STYLE.md` exactly. Apply scope and seat filters before counting, never report unchanged entries, and never send a correction caused by an unvalidated count.
-- Follow `BROWSER_MONITOR_WORKFLOW.md`. Never select a date by its day-number label, and never send a definitive seat result unless expected and checked screening keys match exactly.
+- Follow `TELEGRAM_STYLE.md` and `BROWSER_MONITOR_WORKFLOW.md` exactly.
 - Import and run `cgv_iab_monitor.mjs` for browser monitoring. Do not replace it with an ad-hoc loop in the automation prompt.
-- Do not report aggregate remaining-seat fluctuations as target-seat discoveries. The actionable result is based only on an actual adjacent pair satisfying every target condition.
+- Do not inspect individual seat names or availability.
 - Never commit `.env`, subscriber IDs, browser sessions, cookies, payment data, or runtime state.
 
-## Reservation safety
+## No reservation actions
 
-- When matching seats are found, notify first and begin reservation in the owner's authenticated CGV session.
-- If logged out, notify the owner immediately and keep tracking while waiting for login.
-- Select the screening, two attendees, and matching seats; proceed through discounts/payment preparation.
-- Follow `PAYMENT_AUTOMATION.md`: use Toss, accept required terms only, and load the phone and six-digit birthdate from macOS Keychain through `payment_identity.py`. Never print either value.
-- Stop before the final action that submits a purchase. Show theater, date, time, seats, and total price and obtain the owner's confirmation at action time.
-- Never expose, copy, or store saved-card details.
+- This monitor is notification-only. Never select attendees or seats and never enter reservation or payment pages.
 
 ## New-machine recovery
 
-Read `MULTI_PC_FAILOVER.md`, `OPERATIONS.md`, and `PAYMENT_AUTOMATION.md`. A newly cloned or replacement machine must remain `standby` unless the user explicitly promotes it after the old primary is offline. Then create `.env` locally, run `setup_payment_keychain.sh`, run the tests, install the service, sign in to CGV, and recreate the scheduler from `watch-config.example.json`.
+Read `MULTI_PC_FAILOVER.md` and `OPERATIONS.md`. A newly cloned or replacement machine must remain `standby` unless the user explicitly promotes it after the old primary is offline. Then create `.env` locally, run the tests, install the service, and recreate the scheduler from `watch-config.example.json`.
