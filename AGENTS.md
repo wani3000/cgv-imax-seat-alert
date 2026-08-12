@@ -11,6 +11,8 @@ This repository monitors CGV Odyssey IMAX seats for the owner.
 - Target: two adjacent standard seats in rows G-J, within 15 seats of the auditorium center.
 - Continue timetable and seat tracking when CGV is logged out. Login is required only after a matching pair is found and reservation steps begin.
 - Notify every Telegram subscriber on every scheduled run, including a friendly explicit no-seat result.
+- Follow `TELEGRAM_STYLE.md` exactly. Apply scope and seat filters before counting, never report unchanged entries, and never send a correction caused by an unvalidated count.
+- Do not report aggregate remaining-seat fluctuations as target-seat discoveries. The actionable result is based only on an actual adjacent pair satisfying every target condition.
 - Never commit `.env`, subscriber IDs, browser sessions, cookies, payment data, or runtime state.
 
 ## Reservation safety
