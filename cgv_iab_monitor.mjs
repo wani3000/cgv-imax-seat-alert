@@ -71,7 +71,7 @@ async function timetableShows(tab, theater, watchDate) {
 
 async function inspectShow(tab, theater, watchDate, show) {
   const page = await timetableShows(tab, theater, watchDate);
-  const movieHeading = tab.playwright.locator("h2").filter({ has: tab.playwright.locator(".title2").filter({ hasText: "오디세이" }) }).first();
+  const movieHeading = tab.playwright.locator("h2").filter({ has: tab.playwright.locator(".title2").filter({ hasText: /^오디세이$/ }) }).first();
   const h3 = movieHeading.locator("xpath=following-sibling::div[1]//h3[contains(., 'IMAX관')]").first();
   const buttons = h3.locator("xpath=following-sibling::ul[1]//button");
   const all = await buttons.all();
