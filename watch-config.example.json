@@ -1,0 +1,17 @@
+{
+  "timezone": "Asia/Seoul",
+  "movie": "오디세이",
+  "theaters": [
+    {"name": "용산아이파크몰", "code": "0013"},
+    {"name": "천호", "code": "0199"}
+  ],
+  "weekend_groups": 3,
+  "friday_start_hour": 19,
+  "saturday_all_day": true,
+  "sunday_all_day": true,
+  "extra_dates": ["2026-08-17"],
+  "people": 2,
+  "rows": ["G", "H", "I", "J"],
+  "center_radius": 15,
+  "poll_minutes": 30
+}
