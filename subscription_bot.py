@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 import requests
+from requests import HTTPError
 
 from monitor_core import SubscriberStore
 
@@ -89,8 +90,15 @@ def main() -> None:
                     send(chat_id, "🟢 지금 열심히 명당을 살펴보고 있어요. 좋은 좌석이 보이면 바로 소식 전할게요!" if subscribed else "⚪ 지금은 좌석 레이더가 쉬는 중이에요. /start 를 보내면 다시 살펴볼게요!")
                 elif text == "/help":
                     send(chat_id, "🎟️ 이용 방법을 알려드릴게요.\n\n/start  명당 알림 시작하기\n/stop  알림 잠시 쉬기\n/status  좌석 레이더 상태 보기\n\n좋은 자리는 예고 없이 등장해요. 레이더는 제가 지켜볼게요!")
+        except HTTPError as exc:
+            # requests' default exception string includes the full request URL,
+            # which contains the Telegram bot token. Log only safe metadata.
+            status = exc.response.status_code if exc.response is not None else "unknown"
+            endpoint = "getUpdates" if exc.request and exc.request.method == "GET" else "sendMessage"
+            print(f"subscription warning: Telegram HTTP {status} at {endpoint}", flush=True)
+            time.sleep(5)
         except Exception as exc:
-            print(f"subscription warning: {type(exc).__name__}: {exc}", flush=True)
+            print(f"subscription warning: {type(exc).__name__}", flush=True)
             time.sleep(5)
 
 
