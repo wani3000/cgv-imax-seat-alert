@@ -12,7 +12,7 @@ if [ ! -f "$PROJECT_DIR/.env" ]; then
 fi
 
 mkdir -p "$RUNTIME_DIR/data" "$HOME/Library/LaunchAgents"
-install -m 700 "$PROJECT_DIR/subscription_bot.py" "$PROJECT_DIR/monitor_core.py" "$RUNTIME_DIR/"
+install -m 700 "$PROJECT_DIR/subscription_bot.py" "$PROJECT_DIR/monitor_core.py" "$PROJECT_DIR/payment_identity.py" "$RUNTIME_DIR/"
 install -m 600 "$PROJECT_DIR/.env" "$RUNTIME_DIR/.env"
 if [ -f "$PROJECT_DIR/data/subscribers.json" ]; then
   install -m 600 "$PROJECT_DIR/data/subscribers.json" "$RUNTIME_DIR/data/subscribers.json"

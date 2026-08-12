@@ -18,9 +18,10 @@ This repository monitors CGV Odyssey IMAX seats for the owner.
 - When matching seats are found, notify first and begin reservation in the owner's authenticated CGV session.
 - If logged out, notify the owner immediately and keep tracking while waiting for login.
 - Select the screening, two attendees, and matching seats; proceed through discounts/payment preparation.
+- Follow `PAYMENT_AUTOMATION.md`: use Toss, accept required terms only, and load the phone and six-digit birthdate from macOS Keychain through `payment_identity.py`. Never print either value.
 - Stop before the final action that submits a purchase. Show theater, date, time, seats, and total price and obtain the owner's confirmation at action time.
 - Never expose, copy, or store saved-card details.
 
 ## New-machine recovery
 
-Read `OPERATIONS.md`, create `.env` locally, run the tests, install the subscription service, sign in to CGV in the selected browser, and recreate the scheduler from `watch-config.example.json`.
+Read `OPERATIONS.md` and `PAYMENT_AUTOMATION.md`, create `.env` locally, run `setup_payment_keychain.sh`, run the tests, install the subscription service, sign in to CGV in the selected browser, and recreate the scheduler from `watch-config.example.json`.

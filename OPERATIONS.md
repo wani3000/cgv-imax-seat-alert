@@ -6,11 +6,14 @@ GitHub에는 프로그램과 운영 규칙만 저장한다. Telegram 토큰, 구
 
 1. 이 저장소를 clone한다.
 2. `.env.example`을 `.env`로 복사하고 새 PC에서 Telegram 토큰을 입력한다.
-3. 기존 봇 대화에서 구독자들이 `/start`를 다시 보내게 한다. Chat ID는 새 PC의 `data/subscribers.json`에 생성된다.
-4. `python3 -m unittest -v test_monitor_core.py`를 실행한다.
-5. macOS라면 `sh install_macos_service.sh`를 실행한다.
-6. CGV 내부 브라우저를 열고 소유자가 로그인한다.
-7. `watch-config.example.json`을 기준으로 30분 감시를 만든다.
+3. `./setup_payment_keychain.sh`를 실행해 이 Mac의 로그인 키체인에 Toss 식별 정보를 등록한다. 실제 값은 GitHub로 복사하지 않는다.
+4. 기존 봇 대화에서 구독자들이 `/start`를 다시 보내게 한다. Chat ID는 새 PC의 `data/subscribers.json`에 생성된다.
+5. `python3 -m unittest -v test_monitor_core.py`를 실행한다.
+6. macOS라면 `sh install_macos_service.sh`를 실행한다.
+7. CGV 내부 브라우저를 열고 소유자가 로그인한다.
+8. `watch-config.example.json`을 기준으로 30분 감시를 만든다.
+
+결제 준비의 상세 순서와 최종 확인 경계는 `PAYMENT_AUTOMATION.md`를 따른다.
 
 ## 장애 시 동작
 
