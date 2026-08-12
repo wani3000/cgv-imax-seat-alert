@@ -13,6 +13,7 @@ This repository monitors CGV Odyssey IMAX seats for the owner.
 - Notify every Telegram subscriber on every scheduled run, including a friendly explicit no-seat result.
 - Follow `TELEGRAM_STYLE.md` exactly. Apply scope and seat filters before counting, never report unchanged entries, and never send a correction caused by an unvalidated count.
 - Follow `BROWSER_MONITOR_WORKFLOW.md`. Never select a date by its day-number label, and never send a definitive seat result unless expected and checked screening keys match exactly.
+- Import and run `cgv_iab_monitor.mjs` for browser monitoring. Do not replace it with an ad-hoc loop in the automation prompt.
 - Do not report aggregate remaining-seat fluctuations as target-seat discoveries. The actionable result is based only on an actual adjacent pair satisfying every target condition.
 - Never commit `.env`, subscriber IDs, browser sessions, cookies, payment data, or runtime state.
 

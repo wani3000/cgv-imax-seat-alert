@@ -2,6 +2,8 @@
 
 이 절차는 날짜 버튼의 `토 15` 같은 화면 문구를 이용하지 않는다. 같은 숫자의 날짜가 여러 주차에 표시될 수 있기 때문이다.
 
+실제 실행은 `cgv_iab_monitor.mjs`의 `runCgvIabMonitor(tab, watchDates)`를 사용한다. 문서 절차를 수동으로 흉내 내거나 일부 회차만 검사하지 않는다.
+
 ## 불변 규칙
 
 1. `monitor_core.upcoming_watch_dates()`로 검사 날짜를 먼저 계산한다.
