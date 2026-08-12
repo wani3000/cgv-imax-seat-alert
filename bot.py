@@ -12,9 +12,11 @@ from pathlib import Path
 from typing import Dict, List
 import requests
 from dotenv import load_dotenv
+from monitor_core import SubscriberStore
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / "data" / "state.json"
+SUBSCRIBERS = ROOT / "data" / "subscribers.json"
 load_dotenv(ROOT / ".env")
 
 @dataclass(frozen=True)
@@ -67,14 +69,13 @@ def format_item(item: Screening) -> str:
             f'💺 현재 잔여 좌석: {seats}\n🔗 예매 페이지: {item.url}')
 
 def help_text():
-    return "안녕하세요. CGV 천호·용산 IMAX 좌석 알리미입니다.\n\n" \
-           "현재 이용 가능한 명령어를 안내해 드립니다.\n" \
-           "/start - 좌석 감시를 시작합니다.\n" \
-           "/stop - 좌석 감시를 잠시 중지합니다.\n" \
-           "/status - 현재 감시 상태를 알려드립니다.\n" \
-           "/report - 현재 확인되는 상영 회차와 잔여 좌석을 보고합니다.\n" \
-           "/days N - 오늘 이후 N일 안의 금·토·일을 확인하도록 설정합니다.\n\n" \
-           "새 회차가 열리거나 잔여 좌석에 변화가 생기면 이 대화방으로 알려드리겠습니다."
+    return "🎟️ 좌석 레이더 이용 방법이에요.\n\n" \
+           "/start - 명당 알림을 시작해요.\n" \
+           "/stop - 알림을 잠시 쉬어요.\n" \
+           "/status - 레이더 상태를 확인해요.\n" \
+           "/report - 지금 열린 회차를 살펴봐요.\n" \
+           "/days N - 확인할 날짜 범위를 정해요.\n\n" \
+           "좋은 좌석은 예고 없이 나타나지만 걱정 마세요. 제가 계속 살펴볼게요! 🍿"
 
 def target_dates(days: int):
     """오늘을 제외하고 앞으로의 금·토·일만 반환한다."""
@@ -88,6 +89,15 @@ def main():
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     if not token: raise SystemExit("TELEGRAM_BOT_TOKEN is missing; copy .env.example to .env")
     tg, provider, state = Telegram(token), CgvProvider(), load_state()
+    subscribers = SubscriberStore(SUBSCRIBERS, os.getenv("TELEGRAM_CHAT_ID"))
+    subscribers.save(subscribers.load())
+
+    def broadcast(text: str):
+        for subscriber_id in subscribers.load():
+            try:
+                tg.send(subscriber_id, text)
+            except Exception as e:
+                print(f'broadcast warning {subscriber_id}: {e}')
     print("bot started")
     while True:
         try:
@@ -95,8 +105,9 @@ def main():
                 msg = u.get("message", {}); chat = msg.get("chat", {}); text = (msg.get("text") or "").strip()
                 cid = str(chat.get("id", ""))
                 if text == "/start":
+                    subscribers.add(cid)
                     state["watching"] = True
-                    tg.send(cid, "안녕하세요. CGV 천호·용산 IMAX 좌석 감시를 시작했습니다.\n새로운 상영 회차가 열리거나 좌석 변동이 확인되면 바로 자세히 알려드리겠습니다.\n\n현재 열려 있는 최신 회차도 함께 확인하고 있습니다. 잠시만 기다려 주세요.")
+                    tg.send(cid, "🎬 좌석 레이더를 켰어요!\n\n용산·천호 IMAX에 좋은 자리가 나타나면 바로 알려드릴게요. 지금 열린 회차도 함께 살펴보는 중이에요. 잠시만 기다려주세요 🍿")
                     try:
                         latest=[]
                         for ymd in target_dates(state['days']):
@@ -109,7 +120,9 @@ def main():
                             tg.send(cid, '앞으로 다가오는 금·토·일에 현재 확인되는 천호·용산 IMAX 상영 회차가 없습니다. 새로운 회차가 열리면 감시 알림으로 바로 알려드리겠습니다.')
                     except Exception:
                         tg.send(cid, '현재 최신 회차 조회가 지연되고 있습니다. 감시는 정상적으로 시작했으며, 조회가 가능한 순간 좌석 변동을 알려드리겠습니다.')
-                elif text == "/stop": state["watching"] = False; tg.send(cid, "좌석 감시를 잠시 중지했습니다. 다시 감시를 시작하시려면 /start 를 보내주세요.")
+                elif text == "/stop":
+                    subscribers.remove(cid)
+                    tg.send(cid, "🔕 좌석 레이더를 잠시 껐어요. 다시 명당 탐색을 시작하려면 /start 를 보내주세요!")
                 elif text == "/status": tg.send(cid, f"현재 감시 상태를 안내해 드립니다.\n\n감시 상태: {'정상적으로 감시 중입니다.' if state['watching'] else '현재 중지되어 있습니다.'}\n확인 주기: 약 {state['interval']}초마다\n확인 범위: 오늘 이후 {state['days']}일 안의 금·토·일\n대상 극장: CGV 천호 IMAX, CGV 용산아이파크몰 IMAX")
                 elif text == "/report":
                     tg.send(cid, '현재 CGV 천호·용산 IMAX 상영표를 확인하고 있습니다.\n잠시만 기다려 주세요. 확인이 끝나는 대로 날짜·요일·시간·극장·영화·잔여 좌석을 자세히 보내드리겠습니다.')
@@ -131,8 +144,7 @@ def main():
                         key = "|".join([item.theater, item.movie, item.ymd, item.time])
                         if state["seen"].get(key) != item.seats:
                             state["seen"][key] = item.seats
-                            cid = os.getenv("TELEGRAM_CHAT_ID")
-                            if cid: tg.send(cid, '🔔 CGV IMAX 좌석 변동을 확인했습니다.\n\n'+format_item(item)+'\n\n지금 예매 페이지에서 좌석 상태를 한 번 더 확인해 주세요.')
+                            broadcast('🔔 CGV IMAX 좌석 변동을 확인했습니다.\n\n'+format_item(item)+'\n\n지금 예매 페이지에서 좌석 상태를 한 번 더 확인해 주세요.')
                 save_state(state)
         except Exception as e:
             print(f"warning: {e}")
